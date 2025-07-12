@@ -21,12 +21,13 @@ export const useSocket = () => {
   const [messages, setMessages] = useState([]);
   const [users, setUsers] = useState([]);
   const [typingUsers, setTypingUsers] = useState([]);
+  const [rooms, setRooms] = useState([]);
 
   // Connect to socket server
-  const connect = (username) => {
+  const connect = (profile) => {
     socket.connect();
-    if (username) {
-      socket.emit('user_join', username);
+    if (profile) {
+      socket.emit('user_join', profile);
     }
   };
 
@@ -108,6 +109,11 @@ export const useSocket = () => {
       setTypingUsers(users);
     };
 
+    const onRoomList = (roomList) => {
+      setRooms(roomList);
+      console.log('Received room list from server (hook):', roomList);
+    };
+
     // Register event listeners
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
@@ -117,6 +123,7 @@ export const useSocket = () => {
     socket.on('user_joined', onUserJoined);
     socket.on('user_left', onUserLeft);
     socket.on('typing_users', onTypingUsers);
+    socket.on('room_list', onRoomList);
 
     // Clean up event listeners
     return () => {
@@ -128,6 +135,7 @@ export const useSocket = () => {
       socket.off('user_joined', onUserJoined);
       socket.off('user_left', onUserLeft);
       socket.off('typing_users', onTypingUsers);
+      socket.off('room_list', onRoomList);
     };
   }, []);
 
@@ -138,6 +146,7 @@ export const useSocket = () => {
     messages,
     users,
     typingUsers,
+    rooms,
     connect,
     disconnect,
     sendMessage,
